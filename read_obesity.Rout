@@ -1,0 +1,49 @@
+
+R version 3.5.2 (2018-12-20) -- "Eggshell Igloo"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R jest oprogramowaniem darmowym i dostarczany jest BEZ JAKIEJKOLWIEK GWARANCJI.
+Możesz go rozpowszechniać pod pewnymi warunkami.
+Wpisz 'license()' lub 'licence()' aby uzyskać szczegóły dystrybucji.
+
+R jest projektem kolaboracyjnym z wieloma uczestnikami.
+Wpisz 'contributors()' aby uzyskać więcej informacji oraz
+'citation()' aby dowiedzieć się jak cytować R lub pakiety R w publikacjach.
+
+Wpisz 'demo()' aby zobaczyć demo, 'help()' aby uzyskać pomoc on-line, lub
+'help.start()' aby uzyskać pomoc w przeglądarce HTML.
+Wpisz 'q()' aby wyjść z R.
+
+[Poprzednio zapisany obszar roboczy został przywrócony]
+
+> library("ggplot2")
+> library("dplyr")
+
+Dołączanie pakietu: ‘dplyr’
+
+Następujące obiekty zostały zakryte z ‘package:stats’:
+
+    filter, lag
+
+Następujące obiekty zostały zakryte z ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> library("tidyr")
+> library("scales")
+> library("ggthemes")
+> library("ggpubr")
+> 
+> ## curl "https://apps.who.int/gho/athena/api/GHO/WHS9_86?format=csv" > pop_who.csv
+> url <- "https://apps.who.int/gho/athena/api/GHO/WHS9_86?format=csv"
+> obesity <- read.csv(url, sep=',', header=T)
+> 
+> nrow(obesity)
+[1] 208
+> 
+> write.csv(obesity, "obesityWHO.csv")
+> 
+> proc.time()
+użytkownik     system   upłynęło 
+     1.433      0.069      1.758 

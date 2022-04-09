@@ -1,0 +1,67 @@
+
+R version 3.5.2 (2018-12-20) -- "Eggshell Igloo"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R jest oprogramowaniem darmowym i dostarczany jest BEZ JAKIEJKOLWIEK GWARANCJI.
+Możesz go rozpowszechniać pod pewnymi warunkami.
+Wpisz 'license()' lub 'licence()' aby uzyskać szczegóły dystrybucji.
+
+R jest projektem kolaboracyjnym z wieloma uczestnikami.
+Wpisz 'contributors()' aby uzyskać więcej informacji oraz
+'citation()' aby dowiedzieć się jak cytować R lub pakiety R w publikacjach.
+
+Wpisz 'demo()' aby zobaczyć demo, 'help()' aby uzyskać pomoc on-line, lub
+'help.start()' aby uzyskać pomoc w przeglądarce HTML.
+Wpisz 'q()' aby wyjść z R.
+
+> ## --R--
+> library ("dplyr")
+
+Dołączanie pakietu: ‘dplyr’
+
+Następujące obiekty zostały zakryte z ‘package:stats’:
+
+    filter, lag
+
+Następujące obiekty zostały zakryte z ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+> 
+> data.url <- "https://covid.ourworldindata.org/data/owid-covid-data.csv"
+> in.file <- "owid-covid-data.csv"
+> out.file <- "owid-covid-data_00.csv"
+> 
+> 
+> ##c19 <- read.table(data.url)
+> # This is not working
+> #c19 <- read.csv(data.url, sep = ',',  header=T, na.string="NA")
+> c19 <- read.csv(in.file, sep = ',',  header=T, na.string="NA")
+> 
+> #library ("tidyverse")
+> #c19 <- read_csv(data.url, sep = ',',  header=T, na.string="NA")
+> 
+> print("Data download!")
+[1] "Data download!"
+> 
+> ## we do not need all the data
+> c19 <- c19 %>% select (iso_code, continent, location, date, total_cases_per_million,
++      total_deaths_per_million,
++      icu_patients_per_million,
++      people_fully_vaccinated_per_hundred)
+> nrow(c19)
+[1] 136463
+> 
+> print("About to write!")
+[1] "About to write!"
+> 
+> write.csv(c19, out.file, append=F)
+Komunikat ostrzegawczy:
+W poleceniu 'write.csv(c19, out.file, append = F)':
+  próba ustawienia 'append' została zignorowana
+> 
+> 
+> proc.time()
+użytkownik     system   upłynęło 
+     8.818      0.138      8.944 

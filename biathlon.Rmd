@@ -1,0 +1,142 @@
+---
+title: 'Attracctiveness vs performance'
+author:
+- name: Tomasz Przechlewski
+  email: t.plata-przechlewski@psw.kwidzyn.edu.pl
+  affiliation: Powiślańska Szkoła Wyższa (Kwidzyn/Poland)
+date: "Jan. 2021"
+output:
+  html_document:
+    includes:
+      before_body: misc_hdr.html
+description: (c) Tomasz Przechlewski / CC-BY license
+---
+
+```{r setup, include=FALSE}
+library("dplyr")
+library("tidyr")
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data 
+
+Data appended to a article
+*Attractiveness is positively related to World Cup performance in male, but not female, biathletes*
+(https://academic.oup.com/beheco/article/30/5/1436/5525079)
+
+
+![](FFF1UnbVUAUMVtE_fiji_captains.jpeg){width=80%}
+
+Read the data:
+
+```{r}
+b0 <- read.csv("biathlonDATA.csv", sep = ';',  header=T, na.string="NA" )
+nrow(b0)
+```
+
+Variable description:
+
+* raterID: anonymous identifier for opposite-sex rater
+* attractiveness: attractiveness rating on a scale on a scale from 1 (very unattractive) to 7 (very attractive)
+* targetID: anonymous identifier for biathlete
+* sex: biathlete's sex
+* ethnicity: biathlete's ethnicity (coded as Cauc = Caucasian, nonCauc = non-Caucasian)
+* zAge: biathlete's standardised age (z-score method)
+* zHeight: biathlete's standardised height (z-score method)
+* zBMI: biathlete's standardised body mass index (z-score method)
+* zWCptsPB: biathletes' standardised career-best World Cup points score (z-score method)
+* zAttractiveness: biathlete's standardised attractiveness rating (z-score method)
+* meanAthlAttr: biathlete's mean standardised attractiveness rating (z-score method)
+
+If attractiveness < 4 then `unattractive`, if attractiveness > 4 then `attractive`; 
+We assume attractiveness == 4 means undecided/no opinion.
+
+```{r}
+ba <- b0 %>% filter (attractiveness > 4) 
+bn <- b0 %>% filter (attractiveness < 4) 
+
+baN <- nrow(ba)
+bnN <- nrow(bn)
+```
+
+There are `r baN` *attractive* assessments and `r bnN`
+*unattractive* assessments (about `r sprintf ("%.2f%%", baN/(bnN +baN) * 100)`)
+
+Data transformation details:
+
+* Omit 4 (command `filter`)
+
+* If attractiveness > 4 then 1; if < 4 then -1 (`mutate`)
+
+* Group by athlets then summarise the groups (group_by/summarise)
+
+* If sum < 0 unattractive; if > 0 then attractive (if 0 then `NA`)
+
+```{r}
+b <- b0 %>% select (attractiveness, targetID, sex, ethnicity, zAge, zHeight, zBMI, zWCptsPB) %>%
+  filter (attractiveness != 4) %>%
+  mutate( attractiveness = case_when(
+      attractiveness < 4 ~ -1,
+      attractiveness > 4 ~ +1
+    )) %>%
+  group_by(targetID) %>%
+  summarise (att = sum(attractiveness, na.rm=T),
+             id = first(targetID),
+             sex = first(sex),
+             eth=first(ethnicity),
+             age = first(zAge),
+             ht = first(zHeight),
+             bmi = first(zBMI),
+             p = first(zWCptsPB)) %>%
+  mutate( att = case_when(
+    att < 0 ~ "U",
+    att > 0 ~ "A"
+  ),
+  p = case_when(
+    p < 0 ~ "A",
+    p > 0 ~ "C"
+  )
+
+  ) %>% mutate_if(is.character, as.factor)
+```
+
+Check results:
+
+```{r}
+summary(b)
+```
+
+## Test $Chi^2$
+
+Attractiveness vs sex
+
+```{r}
+bx <- b %>% select (att, sex)
+
+bx.table <- table(bx)
+bx.table
+
+margin.table(bx.table,1)
+margin.table(bx.table,2)
+bx.table.m <- addmargins(bx.table)
+
+bx.table.m
+
+chi_bx <- chisq.test(bx.table)
+
+chi_bx
+```
+
+Attractiveness vs performance
+
+```{r}
+by <- b %>% select (att, p)
+
+by.table <- table(by)
+by.table
+
+chi_by <- chisq.test(by.table)
+chi_by
+```
+
+
